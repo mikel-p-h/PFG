@@ -1,0 +1,62 @@
+services:
+  api:
+    build:
+      context: ./Database-API
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: "sqlite:///./data/PFG_Mikel.db"
+    volumes:
+      - ./Database-API/data:/app/data
+    networks:
+      - app-network
+
+  yolo:
+    build:
+      context: ./YoloFSOD
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./YoloFSOD:/app
+    networks:
+      - app-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    shm_size: 8gb
+
+  inpainting:
+    build:
+      context: ./Inpainting
+      dockerfile: Dockerfile.inpainting
+    ports:
+      - "5002:5002"
+    networks:
+      - app-network
+    volumes:
+      - ./Inpainting/hf-cache:/root/.cache
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    shm_size: 8gb
+
+  frontend:
+    build:
+      context: ./Frontend
+      args:
+        VITE_API_URL: "http://api:8000"
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+      - yolo
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
