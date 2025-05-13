@@ -13,5 +13,14 @@ python3 .\UserRegistration.py
 ```
 python .\UserRegistration.py
 ```
+### You might need to install requests, for that execute one of these commands:
+### For python3:
+```
+pip3 install requests
+```
+### For python:
+```
+pip install requests
+```
 Once you have done this, you can access the page at:
 <http://localhost:5173>
