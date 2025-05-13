@@ -1,0 +1,10 @@
+flask
+diffusers[torch]>=0.24.0
+transformers>=4.36.0
+Pillow
+accelerate
+scikit-image
+safetensors
+huggingface_hub[hf_xet]
+numpy<2
+flask-cors
