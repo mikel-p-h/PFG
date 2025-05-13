@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pillow
+sqlalchemy
+python-multipart
+bcrypt
+requests
+scikit-learn
+PyYAML
+opencv-python-headless
