@@ -1,4 +1,4 @@
-# PFG
+# Final Degree Project
 Once you have downloaded all the files, you need to execute the docker-compose file, for that you can use this command:
 ```
 docker-compose -f docker-compose.yml up --build
