@@ -9,11 +9,10 @@ def read_predictions_from_txt(pred_dir, img_dir):
     result_data = []
 
     for txt_file in Path(pred_dir).rglob("*.txt"):
-        img_name = txt_file.stem  # nombre del archivo sin extensión
+        img_name = txt_file.stem 
         corresponding_image = next(Path(img_dir).rglob(f"{img_name}.*"), None)
 
         if corresponding_image:
-            # Cargamos tamaño de la imagen para normalizar
             labels = []
             with open(txt_file, 'r') as f:
                 for line in f:
@@ -34,7 +33,7 @@ def fsod_train():
             return jsonify({'error': 'Dataset ZIP is required'}), 400
 
         dataset_zip = request.files['dataset']
-        model_name = request.form.get('model', 'yolo12m.pt')
+        model_name = request.form.get('model', 'yolo11m.pt')
         zip_path = os.path.join(temp_dir, 'dataset.zip')
         dataset_zip.save(zip_path)
 
@@ -49,7 +48,6 @@ def fsod_train():
         with open(yaml_path) as f:
             yaml_data = yaml.safe_load(f)
 
-        # Actualizamos las rutas a images/train y images/val
         yaml_data['path'] = dataset_dir
         for key in ['train', 'val']:
             if key in yaml_data:
@@ -60,23 +58,20 @@ def fsod_train():
 
         model = YOLO(model_name)
 
-        # Entrenamiento usando solo train y val
         model.train(
             data=yaml_path,
-            epochs=int(request.form.get('epochs', 10)),
+            epochs=int(request.form.get('epochs', 30)),
             imgsz=int(request.form.get('imgsz', 640)),
-            batch=int(request.form.get('batch', 4)),
+            batch=int(request.form.get('batch', 16)),
             lr0=float(request.form.get('lr', 0.001)),
-            freeze=5,
+            freeze=10,
             verbose=False
         )
 
-        # Predicciones en carpeta predict
         predict_images_path = os.path.join(dataset_dir, 'images', 'predict')
         if not os.path.exists(predict_images_path):
             return jsonify({'error': 'predict folder not found in dataset'}), 400
 
-        # Crear una carpeta de resultados
         predict_save_dir = os.path.join(temp_dir, 'predict_results')
 
         model.predict(

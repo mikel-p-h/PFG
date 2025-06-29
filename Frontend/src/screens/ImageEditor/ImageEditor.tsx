@@ -157,9 +157,8 @@ export const ImageEditor = () => {
     if (lastPos.current) {
       const { x: lastX, y: lastY } = lastPos.current;
   
-      // Interpolar puntos entre la última posición y la actual
       const distance = Math.hypot(x - lastX, y - lastY);
-      const steps = Math.ceil(distance / (brushSize / 2)); // Ajustar el número de pasos según el tamaño del pincel
+      const steps = Math.ceil(distance / (brushSize / 2));
   
       for (let i = 0; i <= steps; i++) {
         const interpolatedX = lastX + (x - lastX) * (i / steps);
@@ -170,7 +169,6 @@ export const ImageEditor = () => {
           { x: interpolatedX, y: interpolatedY, tool: currentTool, size: brushSize },
         ]);
   
-        // Dibujar directamente en el canvas para mayor fluidez
         if (currentTool === 'eraser') {
           ctx.save();
           ctx.globalCompositeOperation = 'destination-out';

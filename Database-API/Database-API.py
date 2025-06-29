@@ -7,7 +7,6 @@ from PIL import Image
 from sqlalchemy.orm import Session
 from database import engine, Base, get_db
 import models
-from models import ImageEntry
 import json
 import bcrypt
 import zipfile
@@ -89,7 +88,6 @@ async def upload_project(
             file_ext = file.lower().split('.')[-1]
 
             if file_ext in ["jpg", "png"]:
-                # Procesar imagen
                 img = Image.open(file_path)
                 width, height = img.size
                 extension = os.path.splitext(file)[1].lower()
@@ -111,15 +109,13 @@ async def upload_project(
                     yolo=yolo_data if yolo_data else None,
                     frame_number=frame_counter
                 ))
-                print(f"Guardando imagen: {unique_name}, con anotaciones: {yolo_data if yolo_data else 'Sin anotaciones'}")
                 frame_counter += 1
 
             elif file_ext in ["mp4", "avi", "mov", "mkv"]:
-                # Procesar video
                 cap = cv2.VideoCapture(file_path)
                 fps = cap.get(cv2.CAP_PROP_FPS)
                 if not fps or fps <= 0:
-                    fps = 30  # fallback
+                    fps = 30
                 frame_interval = int(fps / 10) if fps >= 10 else 1
 
                 frame_idx = 0
@@ -139,7 +135,6 @@ async def upload_project(
                             yolo=None,
                             frame_number=frame_counter
                         ))
-                        print(f"Guardando frame extraído: {unique_name}")
                         frame_counter += 1
                     frame_idx += 1
                 cap.release()
@@ -518,7 +513,7 @@ def generate_dataset(project_id: UUID, db: Session = Depends(get_db)):
                     img_file.write(entry.image)
 
                 if split in ['train', 'val'] and entry.yolo:
-                    labels = entry.yolo  # List of strings with label information
+                    labels = entry.yolo
                     label_filename = image_filename.replace(image_extension, '.txt')
                     label_output_path = os.path.join(labels_dir, split, label_filename)
 
@@ -612,7 +607,6 @@ def download_project_data(
     if not images:
         raise HTTPException(status_code=404, detail="No images found for this project")
 
-    # Deserializar correctamente las etiquetas
     try:
         labels_list = json.loads(project.labels)
         real_labels = json.loads(labels_list[0])
@@ -621,21 +615,17 @@ def download_project_data(
 
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-        # Escribir anotaciones y (opcionalmente) imágenes
         for image_entry in images:
             base_filename = os.path.splitext(image_entry.image_name)[0]
 
-            # Guardar anotación en labels/
             annotation_filename = f"labels/{base_filename}.txt"
             yolo_data = image_entry.yolo or ""
             zip_file.writestr(annotation_filename, yolo_data)
 
-            # Guardar imagen en images/
             if include_images:
                 image_filename = f"images/{image_entry.image_name}"
                 zip_file.writestr(image_filename, image_entry.image)
 
-        # Añadir archivo data.yaml
         yaml_content = "#*Edit the paths with your own and delete this line*#\n"
         yaml_content += "path: ./\n\n"
         yaml_content += "train: images/?\n"

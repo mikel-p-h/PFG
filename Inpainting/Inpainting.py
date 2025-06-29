@@ -18,9 +18,7 @@ def inpainting():
         init_image = Image.open(image_file).convert("RGB")
         mask_image = Image.open(mask_file).convert("L")
 
-        
-        # model_id = "kandinsky-community/kandinsky-2-2-decoder-inpaint"
-        model_id = "diffusers/stable-diffusion-xl-1.0-inpainting-0.1"
+        model_id = "stabilityai/stable-diffusion-2-inpainting"
 
         pipeline = AutoPipelineForInpainting.from_pretrained(
             model_id,
@@ -32,12 +30,12 @@ def inpainting():
 
         result = pipeline(
             prompt=prompt,
-            num_inference_steps=20,
+            num_inference_steps=30,
             image=init_image,
             mask_image=mask_image,
             generator=generator,
-            strength=0.99,
-            guidance_scale=9.0,
+            strength=0.85,
+            guidance_scale=10.0,
             padding_mask_crop=3
         ).images[0]
 

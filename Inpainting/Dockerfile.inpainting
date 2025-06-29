@@ -1,9 +1,7 @@
 FROM nvidia/cuda:11.8.0-devel-ubuntu22.04
 
-# Establecer el directorio de trabajo
 WORKDIR /app
 
-# Instalar dependencias del sistema y Python con pip
 RUN apt-get update && apt-get install -y \
     git \
     libsndfile1 \
@@ -17,19 +15,14 @@ RUN apt-get update && apt-get install -y \
     ln -s /usr/bin/pip3 /usr/bin/pip && \
     rm -rf /var/lib/apt/lists/*
 
-# Copiar el archivo de requerimientos e instalar las dependencias
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
-# Instalar xformers y torch con CUDA 11.8
 RUN pip install -U xformers torch==2.1.2 --index-url https://download.pytorch.org/whl/cu118
 RUN pip install hf_xet
 
-# Copiar el script principal
 COPY Inpainting.py .
 
-# Exponer el puerto Flask
 EXPOSE 5002
 
-# Ejecutar Flask
 CMD ["python", "Inpainting.py"]

@@ -17,13 +17,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../components/ui/dialog";
-import apiClient from "../../apiClient"; // Importa el cliente de la API
+import apiClient from "../../apiClient";
 import { FrownIcon } from "lucide-react";
 import { Header } from "../../components/ui/Header";
 
 export const Box = (): JSX.Element => {
   const navigate = useNavigate();
-  const userEmail = "testuser@example.com"; // Correo del usuario actual (puedes cambiarlo dinámicamente)
+  const userEmail = "testuser@example.com";
   const userName = "Test User";
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
@@ -33,11 +33,11 @@ export const Box = (): JSX.Element => {
     { id: "inProgress", label: "In Progress", active: false },
     { id: "notStarted", label: "Not Started", active: false },
   ]);
-  const [searchTerm, setSearchTerm] = useState(""); // Estado para el input de búsqueda
-  const [projects, setProjects] = useState<Project[]>([]); // Estado para los proyectos obtenidos de la API
-  const [filteredProjects, setFilteredProjects] = useState<Project[] | null>(null); // Estado para los proyectos filtrados
+  const [searchTerm, setSearchTerm] = useState("");
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [filteredProjects, setFilteredProjects] = useState<Project[] | null>(null);
   const [openLabelDropdown, setOpenLabelDropdown] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false); // Estado para indicar si se está eliminando
+  const [isDeleting, setIsDeleting] = useState(false);
 
   interface Tag {
     text: string;
@@ -53,20 +53,18 @@ export const Box = (): JSX.Element => {
     state: string;
   }
 
-  // Función para obtener los proyectos desde la API
   const fetchProjects = async () => {
     try {
       const response = await apiClient.get<{ projects: any[] }>("/projects", {
         params: {
-          email: userEmail, // Cambia esto por el email correspondiente
+          email: userEmail, 
           states: filters.filter((filter) => filter.active).map((filter) => filter.label),
         },
       });
 
-      // Transformar los datos para combinar labels, colors y añadir el estado
       const transformedProjects = response.data.projects.map((project) => {
-        const labels = JSON.parse(project.labels[0]); // Deserializar la cadena JSON
-        const colors = JSON.parse(project.colors[0]); // Deserializar la cadena JSON
+        const labels = JSON.parse(project.labels[0]); 
+        const colors = JSON.parse(project.colors[0]); 
 
         const combinedTags = labels.map((label: string, index: number) => ({
           text: label,
@@ -76,37 +74,35 @@ export const Box = (): JSX.Element => {
         return {
           ...project,
           tags: combinedTags,
-          state: project.status || "Not Started", // Usar el campo 'status' de la API como 'state'
+          state: project.status || "Not Started", 
         };
       });
 
       setProjects(transformedProjects);
-      setFilteredProjects(transformedProjects); // Inicialmente, los proyectos filtrados son todos
+      setFilteredProjects(transformedProjects); 
     } catch (error: any) {
       if (error.response?.status === 404) {
-        setFilteredProjects([]); // No hay proyectos
+        setFilteredProjects([]); 
       } else {
         console.error("Error fetching projects:", error);
       }
     }
   };
 
-  // Filtrar proyectos según el texto ingresado en la barra de búsqueda
   useEffect(() => {
     const lowerSearch = searchTerm.toLowerCase();
     const activeStates = filters.filter((f) => f.active).map((f) => f.label);
 
     const filtered = projects.filter((project) => {
       const matchesState =
-        activeStates.length === 0 || activeStates.includes(project.state); // Filtrar por estado
-      const matchesSearch = project.name.toLowerCase().includes(lowerSearch); // Filtrar por búsqueda
+        activeStates.length === 0 || activeStates.includes(project.state); 
+      const matchesSearch = project.name.toLowerCase().includes(lowerSearch);
       return matchesState && matchesSearch;
     });
 
     setFilteredProjects(filtered);
   }, [searchTerm, projects, filters]);
 
-  // Llamar a la API al cargar la página o cuando cambien los filtros
   useEffect(() => {
     fetchProjects();
   }, [filters]);
@@ -143,25 +139,22 @@ export const Box = (): JSX.Element => {
 
   const handleConfirmDelete = async () => {
     if (projectToDelete) {
-      setIsDeleting(true); // Cambiar el estado a "eliminando"
+      setIsDeleting(true); 
       try {
-        // Hacer la petición al backend para eliminar el proyecto
         const response = await apiClient.delete<{ message: string }>(`/project/${projectToDelete}`);
-        console.log(response.data.message); // Mostrar el mensaje de éxito en la consola
+        console.log(response.data.message);
 
-        // Actualizar la lista de proyectos después de eliminar
         setProjects(projects.filter((project) => project.project_id !== projectToDelete));
         setFilteredProjects(
           filteredProjects?.filter((project) => project.project_id !== projectToDelete) || null
         );
 
-        // Cerrar el diálogo y limpiar el estado
         setDeleteDialogOpen(false);
         setProjectToDelete(null);
       } catch (error: any) {
         console.error('Error deleting project:', error.response?.data?.detail || error.message);
       } finally {
-        setIsDeleting(false); // Restablecer el estado
+        setIsDeleting(false);
       }
     }
   };
@@ -186,7 +179,7 @@ export const Box = (): JSX.Element => {
       <Header
         userName={userName}
         userEmail={userEmail}
-        isProjectsUnderlined={true} // Habilitar el subrayado para "Projects"
+        isProjectsUnderlined={true} 
       />
       <div className="w-full h-full">
         <div className="relative w-full h-full">
@@ -324,7 +317,7 @@ export const Box = (): JSX.Element => {
           <DialogFooter className="flex justify-end gap-2 mt-4">
             <Button
               variant="destructive"
-              disabled={countdown > 0 || isDeleting} // Deshabilitar mientras se elimina
+              disabled={countdown > 0 || isDeleting} 
               onClick={handleConfirmDelete}
               className="bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >

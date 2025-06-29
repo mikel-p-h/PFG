@@ -47,13 +47,12 @@ services:
   frontend:
     build:
       context: ./Frontend
-      args:
-        VITE_API_URL: "http://api:8000"
     ports:
       - "5173:80"
     depends_on:
       - api
       - yolo
+      - inpainting
     networks:
       - app-network
 

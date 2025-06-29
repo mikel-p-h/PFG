@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { HexColorPicker } from 'react-colorful';
-import { Header } from '../../components/ui/Header'; // Importar el nuevo Header
+import { Header } from '../../components/ui/Header';
 import { SearchIcon, PlusIcon, Pencil, Check, Download } from 'lucide-react';
 import {
   Dialog,
@@ -57,7 +57,7 @@ export const ProjectDetails = () => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (sharePopupRef.current && !sharePopupRef.current.contains(event.target as Node)) {
-        setShowSharePopup(false); // Cerrar el pop-up si se hace clic fuera
+        setShowSharePopup(false);
       }
     };
 
@@ -247,11 +247,10 @@ export const ProjectDetails = () => {
         `http://localhost:8000/download/${projectId}`,
         {
           params: { include_images: includeImages },
-          responseType: 'blob', // Para manejar archivos binarios
+          responseType: 'blob',
         }
       );
   
-      // Crear un enlace para descargar el archivo ZIP
       const url = window.URL.createObjectURL(new Blob([response.data as BlobPart]));
       const link = document.createElement('a');
       link.href = url;
@@ -262,11 +261,10 @@ export const ProjectDetails = () => {
     } catch (error) {
       console.error('Error downloading project data:', error);
     } finally {
-      setShowDownloadPopup(false); // Cerrar el popup
+      setShowDownloadPopup(false);
     }
   };
 
-  // Filtrar imágenes basadas en el valor de searchQuery
   const filteredImages = images.filter((img) =>
     img.image_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -531,13 +529,13 @@ export const ProjectDetails = () => {
             <div className="flex justify-between">
               <Button
                 className="bg-green-600 text-white hover:bg-green-700"
-                onClick={() => handleDownload(true)} // Descargar ambos
+                onClick={() => handleDownload(true)}
               >
                 Both
               </Button>
               <Button
                 className="bg-blue-600 text-white hover:bg-blue-700"
-                onClick={() => handleDownload(false)} // Descargar solo anotaciones
+                onClick={() => handleDownload(false)}
               >
                 Annotations
               </Button>
@@ -545,7 +543,7 @@ export const ProjectDetails = () => {
             <Button
               variant="outline"
               className="mt-4 w-full"
-              onClick={() => setShowDownloadPopup(false)} // Cerrar el popup
+              onClick={() => setShowDownloadPopup(false)}
             >
               Cancel
             </Button>

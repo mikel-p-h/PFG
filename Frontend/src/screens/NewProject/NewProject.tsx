@@ -5,7 +5,7 @@ import { Input } from '../../components/ui/input';
 import { Badge } from '../../components/ui/badge';
 import { CameraIcon, UploadIcon, XIcon, PlusIcon } from 'lucide-react';
 import { HexColorPicker } from 'react-colorful';
-import { Header } from '../../components/ui/Header'; // Importar el Header
+import { Header } from '../../components/ui/Header';
 import JSZip from 'jszip';
 import axios from 'axios';
 
@@ -93,13 +93,11 @@ export const NewProject = () => {
     const files = Array.from(event.dataTransfer.files);
 
     if (type === 'files') {
-      // Permitir solo imágenes y videos
       const validFiles = files.filter(
         (file) => file.type.startsWith('image/') || file.type.startsWith('video/')
       );
       setUploadedFiles((prev) => [...prev, ...validFiles]);
     } else if (type === 'annotations') {
-      // Permitir solo archivos .txt
       const validAnnotations = files.filter((file) => file.name.endsWith('.txt'));
       setUploadedAnnotations((prev) => [...prev, ...validAnnotations]);
     }
@@ -113,15 +111,12 @@ export const NewProject = () => {
     if (!projectName || labels.length === 0 || uploadedFiles.length === 0) return;
 
     try {
-      // Crear un archivo ZIP con las imágenes, videos y archivos .txt
       const zip = new JSZip();
 
-      // Añadir imágenes y videos al ZIP
       uploadedFiles.forEach((file) => {
         zip.file(file.name, file);
       });
 
-      // Añadir archivos de anotaciones al ZIP
       uploadedAnnotations.forEach((file) => {
         zip.file(file.name, file);
       });
@@ -129,17 +124,16 @@ export const NewProject = () => {
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const formData = new FormData();
       formData.append('project_name', projectName);
-      formData.append('project_owner', 'testuser@example.com'); // Correo del usuario
+      formData.append('project_owner', 'testuser@example.com');
       formData.append('labels', JSON.stringify(labels.map((label) => label.text)));
       formData.append('colors', JSON.stringify(labels.map((label) => label.color)));
       formData.append('folder', new File([zipBlob], `${projectName}.zip`));
 
-      // Hacer la petición al backend
       await axios.post('http://localhost:8000/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      navigate('/'); // Redirigir a la página principal
+      navigate('/');
     } catch (error) {
       console.error('Error al subir el proyecto:', error);
     }
@@ -149,17 +143,15 @@ export const NewProject = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
       <Header
         userName="Test User"
         userEmail="testuser@example.com"
         showProjects={false}
         extraContent={
           <div className="flex items-center gap-4">
-            {/* Navegación de Projects */}
             <span
               className="cursor-pointer hover:text- gmrra-y4-700 mr-4"
-              onClick={() => navigate('/')} // Navegar a la página principal
+              onClick={() => navigate('/')}
             >
               Projects
             </span>
@@ -218,7 +210,7 @@ export const NewProject = () => {
               onChange={(e) => setNewLabel(e.target.value)}
               placeholder="Add label"
               className="w-24 h-8 px-2 text-sm border border-gray-300"
-              onFocus={() => setShowColorPicker(true)} // Abrir el color picker al enfocar el input
+              onFocus={() => setShowColorPicker(true)}
             />
             {showColorPicker && (
               <div className="relative" ref={colorPickerRef}>
@@ -230,7 +222,7 @@ export const NewProject = () => {
             <div
               className="w-6 h-6 rounded-full cursor-pointer"
               style={{ backgroundColor: selectedColor }}
-              onClick={() => setShowColorPicker(true)} // Abrir el color picker al hacer clic en el color
+              onClick={() => setShowColorPicker(true)}
             />
             <Button
               size="sm"
@@ -257,7 +249,7 @@ export const NewProject = () => {
                 ref={imageInputRef}
                 className="hidden"
                 multiple
-                accept="image/*,video/*" // Solo imágenes y videos
+                accept="image/*,video/*"
                 onChange={(e) => {
                   const files = e.target.files;
                   if (files) {
@@ -333,7 +325,7 @@ export const NewProject = () => {
                 ref={annotationsInputRef}
                 className="hidden"
                 multiple
-                accept=".txt" // Solo archivos .txt
+                accept=".txt"
                 onChange={(e) => {
                   const files = e.target.files;
                   if (files) {
